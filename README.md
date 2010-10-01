@@ -57,3 +57,25 @@ The API endpoints are RESTful for the most part.
 ### Collect top topics for a Twitter username
 
     GET http://localhost:8888/node/:username/stats?stat=topics
+
+## Running
+
+    › ./trinity.py --help
+    Usage: ./trinity.py [OPTIONS]
+
+    Options:
+    --help                           show this help information
+    --log_file_max_size              max size of log files before rollover
+    --log_file_num_backups           number of log files to keep
+    --log_file_prefix=PATH           Path prefix for log files. Note that if you are running multiple tornado processes, log_file_prefix must be different for each of them (e.g. include the port number)
+    --log_to_stderr                  Send log output to stderr (colorized if possible). By default use stderr if --log_file_prefix is not set and no other logging is configured.
+    --logging=info|warning|error|none Set the Python log level. If 'none', tornado won't touch the logging configuration.
+    ./trinity.py
+    --graph_path                     path to neo4j graph files
+    --port                           run on the given port
+
+The default graph path is `/var/neo4j`, so make sure that path exists and is writable by your user.
+
+To start the server:
+
+    › ./trinity.py
