@@ -9,8 +9,7 @@ class NodeHandler(BaseHandler):
     def post(self):
         self.load_json()
         id = self.get_argument('id')
-        # Can't use get_argument here, as it clobbers a nested dictionary
-        params = self.request.arguments.get('node', {})
+        params = self.get_argument('node', {})
 
         with self.graph.transaction:  
             node = self.index[id]

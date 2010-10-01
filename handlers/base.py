@@ -21,3 +21,12 @@ class BaseHandler(tornado.web.RequestHandler):
 
     def load_json(self):
         self.request.arguments = json.loads(self.request.body)
+
+    def get_argument(self, name,
+            default=tornado.web.RequestHandler._ARG_DEFAULT, strip=True):
+        arg = self.request.arguments[name]
+        if not arg:
+            if default is self._ARG_DEFAULT:
+                raise HTTPError(404, "Missing argument %s" % name)
+            return default
+        return arg
