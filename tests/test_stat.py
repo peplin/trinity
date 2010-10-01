@@ -16,6 +16,7 @@ class StatHandlerTest(tornado.testing.AsyncHTTPTestCase):
                 self.get_url('/node'),
                 'POST',
                 body=json.dumps(NODE_DATA)), self.stop)
+        self.wait()
 
     def test_topics_stat(self):
         self.http_client.fetch(self.get_url(

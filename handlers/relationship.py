@@ -7,10 +7,9 @@ from handlers.base import BaseHandler
 
 class RelationshipHandler(BaseHandler):
     def post(self, node_id):
-        self.load_json()
-        typ = self.get_argument('type')
-        to = self.get_argument('to')
-        data = self.get_argument('data', {})
+        typ = self.get_json_argument('type')
+        to = self.get_json_argument('to')
+        data = self.get_json_argument('data', {})
 
         with self.graph.transaction:  
             node = self.find_node(node_id)

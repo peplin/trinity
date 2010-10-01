@@ -7,9 +7,8 @@ from handlers.base import BaseHandler
 
 class NodeHandler(BaseHandler):
     def post(self):
-        self.load_json()
-        id = self.get_argument('id')
-        params = self.get_argument('node', {})
+        id = self.get_json_argument('id')
+        params = self.get_json_argument('node', {})
 
         with self.graph.transaction:  
             node = self.index[id]
