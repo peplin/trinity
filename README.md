@@ -33,6 +33,7 @@ OS X users have it easy, for once:
 
 ### Python Packages
 
+* tornado
 * JPype - http://sourceforge.net/projects/jpype/ 
 * neo4j.py - http://components.neo4j.org/neo4j.py/ 
 
