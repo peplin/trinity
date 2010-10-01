@@ -44,10 +44,16 @@ Install all of these using the `pip-requirements.txt` file with:
 
 The API endpoints are RESTful for the most part.
 
-### Add a tweet to the graph
+### Add a node (if one indexed on the ID field doesn't already exist)
 
-    POST http://localhost:8000/tweet
+    POST http://localhost:8888/node
+        {'id': 'bueda', 'username': 'bueda', 'user_id': 12345}
+
+### Add a relationship to a node
+
+    POST http://localhost:8888/node/:id/relationships  
+        {'to': ':other_id', 'data': {'other': 'data'}, 'type': 'MENTIONS'}
 
 ### Collect top topics for a Twitter username
 
-    GET http://localhost:8000/twitterer/:username/topics
+    GET http://localhost:8888/twitterer/:username/topics
