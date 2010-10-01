@@ -1,6 +1,7 @@
 #!/usr/bin/env python
 
 import neo4j
+import json
 import os.path
 import tornado.httpserver
 import tornado.ioloop
@@ -45,27 +46,35 @@ class BaseHandler(tornado.web.RequestHandler):
             raise tornado.web.HTTPError(404, "node %s doesn't exist" % node_id)
         return node
 
+    def load_json(self):
+        self.request.arguments = json.loads(self.request.body)
+
 
 class NodeHandler(BaseHandler):
     def post(self):
+        self.load_json()
         id = self.get_argument('id')
-        params = self.get_argument('node', {})
+        # Can't use get_argument here, as it clobbers a nested dictionary
+        params = self.request.arguments.get('node', {})
 
-        node = self.index[id]
-        if not node:
-            node = graph.node(**params)
-            self.index[id] = node
+        with self.graph.transaction:  
+            node = self.index[id]
+            if not node:
+                node = self.graph.node(**params)
+                self.index[id] = node
 
 
 class RelationshipHandler(BaseHandler):
     def post(self, node_id):
+        self.load_json()
         typ = self.get_argument('type')
         to = self.get_argument('to')
         data = self.get_argument('data', {})
 
-        node = self.find_node(node_id)
-        to_node = self.find_node(to)
-        getattr(node, typ)(to_node, **data)
+        with self.graph.transaction:  
+            node = self.find_node(node_id)
+            to_node = self.find_node(to)
+            getattr(node, typ)(to_node, **data)
 
 
 class StatHandler(BaseHandler):
@@ -81,7 +90,7 @@ class StatHandler(BaseHandler):
             raise tornado.web.HTTPError(400, "stat %s doesn't exist" % stat)
 
         results = stat_method(node)
-        self.write(json.dumps(results))
+        self.write(results)
 
 
 def main():

@@ -4,21 +4,22 @@ import tornado.testing
 import json
 
 import trinity
+from tests.test_node import NODE_DATA
 
-NODE_DATA = {'id': 'bueda', 'node': {'username': 'bueda', 'user_id': 12345}}
-
-class NodeHandlerTest(tornado.testing.AsyncHTTPTestCase):
+class StatHandlerTest(tornado.testing.AsyncHTTPTestCase):
     def get_app(self):
         return trinity.Trinity()
 
     def setUp(self):
-        super(NodeHandlerTest, self).setUp()
-        self.data = NODE_DATA
-
-    def test_create_node(self):
+        super(StatHandlerTest, self).setUp()
         self.http_client.fetch(HTTPRequest(
                 self.get_url('/node'),
                 'POST',
-                body=json.dumps(self.data)), self.stop)
+                body=json.dumps(NODE_DATA)), self.stop)
+
+    def test_topics_stat(self):
+        self.http_client.fetch(self.get_url(
+                '/node/%s/stats?stat=%s' % (NODE_DATA['id'], 'topics')),
+                self.stop)
         response = self.wait()
         eq_(response.code, 200)
