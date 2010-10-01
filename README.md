@@ -47,7 +47,7 @@ The API endpoints are RESTful for the most part.
 ### Add a node (if one indexed on the ID field doesn't already exist)
 
     POST http://localhost:8888/node
-        {'id': 'bueda', 'username': 'bueda', 'user_id': 12345}
+        {'id': 'bueda', 'node': {'username': 'bueda', 'user_id': 12345}}
 
 ### Add a relationship to a node
 
@@ -56,4 +56,4 @@ The API endpoints are RESTful for the most part.
 
 ### Collect top topics for a Twitter username
 
-    GET http://localhost:8888/twitterer/:username/topics
+    GET http://localhost:8888/node/:username/stats?stat=topics
