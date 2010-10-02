@@ -20,7 +20,11 @@ class BaseHandler(tornado.web.RequestHandler):
         return node
 
     def load_json(self):
-        self.request.arguments = json.loads(self.request.body)
+        try:
+            self.request.arguments = json.loads(self.request.body)
+        except ValueError:
+            raise tornado.web.HTTPError(400, "Could not decode JSON: %s"
+                    % self.request.body)
 
     def get_json_argument(self, name,
             default=tornado.web.RequestHandler._ARG_DEFAULT, strip=True):
@@ -29,6 +33,6 @@ class BaseHandler(tornado.web.RequestHandler):
         arg = self.request.arguments[name]
         if not arg:
             if default is self._ARG_DEFAULT:
-                raise HTTPError(404, "Missing argument %s" % name)
+                raise tornado.web.HTTPError(404, "Missing argument %s" % name)
             return default
         return arg
