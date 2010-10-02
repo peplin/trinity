@@ -15,3 +15,5 @@ class RelationshipHandler(BaseHandler):
             node = self.find_node(node_id)
             to_node = self.find_node(to)
             getattr(node, typ)(to_node, **data)
+
+        self.write({'start': node_id, 'to': to, 'type': typ, 'data': data})
