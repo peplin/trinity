@@ -21,4 +21,4 @@ class StatHandler(BaseHandler):
                         "stat %s doesn't exist" % name)
             # TODO can we do this async?
             results = getattr(module, 'run')(self.graph, self.index, node)
-        self.write(results)
+        self.write({'results': results})
