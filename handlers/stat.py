@@ -19,6 +19,6 @@ class StatHandler(BaseHandler):
             except ImportError:
                 raise tornado.web.HTTPError(400,
                         "stat %s doesn't exist" % name)
-            # TODO can we do this async?
+            # LH #4 look into doing this call asynchronously
             results = getattr(module, 'run')(self.graph, self.index, node)
         self.write({'results': results})

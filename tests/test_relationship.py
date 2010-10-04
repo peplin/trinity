@@ -12,7 +12,7 @@ RELATIONSHIP_DATA = {'to': 'bueda', 'data': {'other': 'data'},
 
 ANOTHER_NODE_DATA = NODE_DATA
 ANOTHER_NODE_DATA['id'] = "not_bueda"
-# TODO need a way to reset the graph after each test
+# LH #3 need a way to reset the graph after each test
 NODE_DATA['id'] = int(random() * 1000000000)
 ANOTHER_NODE_DATA['id'] = int(random() * 1000000000)
 

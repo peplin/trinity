@@ -15,5 +15,4 @@ class NodeHandler(BaseHandler):
             if not node:
                 node = self.graph.node(**params)
                 self.index[id] = node
-        # TODO might need a better way to do this
         self.write({'id': id, 'node': params})
