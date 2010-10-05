@@ -1,3 +1,4 @@
+import neo4j
 import tornado.httpserver
 import tornado.ioloop
 import tornado.options
@@ -7,18 +8,15 @@ import importlib
 from handlers.base import BaseHandler
 
 class StatHandler(BaseHandler):
+    @neo4j.transactional(graph)
     def get(self, node_id):
         name = self.get_argument('stat', None)
-        with self.graph.transaction:  
-            node = self.find_node(node_id)
+        node = self.find_node(node_id)
 
-            # try to import stat from node states
-            # run it!
-            try:
-                module = importlib.import_module("stats.%s" % name)
-            except ImportError:
-                raise tornado.web.HTTPError(400,
-                        "stat %s doesn't exist" % name)
-            # LH #4 look into doing this call asynchronously
-            results = getattr(module, 'run')(self.graph, self.index, node)
+        try:
+            module = importlib.import_module("stats.%s" % name)
+        except ImportError:
+            raise tornado.web.HTTPError(400,
+                    "stat %s doesn't exist" % name)
+        results = getattr(module, 'run')(self.graph, self.index, node)
         self.write({'results': results})
