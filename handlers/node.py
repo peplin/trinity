@@ -7,12 +7,12 @@ from handlers.base import BaseHandler
 
 class NodeHandler(BaseHandler):
     def post(self):
-        id = self.get_json_argument('id')
+        node_id = self.get_json_argument('id').lower()
         params = self.get_json_argument('node', {})
 
         with self.graph.transaction:  
-            node = self.index[id]
+            node = self.index[node_id]
             if not node:
                 node = self.graph.node(**params)
-                self.index[id] = node
-        self.write({'id': id, 'node': params})
+                self.index[node_id] = node
+        self.write({'id': node_id, 'node': params})

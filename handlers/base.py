@@ -14,7 +14,7 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.application.index
 
     def find_node(self, node_id):
-        node = self.index[node_id]
+        node = self.index[node_id.lower()]
         if not node:
             raise tornado.web.HTTPError(404, "node %s doesn't exist" % node_id)
         return node
