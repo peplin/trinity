@@ -7,7 +7,7 @@ import tornado.web
 from handlers.base import BaseHandler
 
 class RelationshipHandler(BaseHandler):
-    @neo4j.transactional(graph)
+    @neo4j.transactional(BaseHandler.graph)
     def post(self, node_id):
         typ = self.get_json_argument('link_type')
         to = self.get_json_argument('to')
@@ -16,4 +16,7 @@ class RelationshipHandler(BaseHandler):
         node = self.find_node(node_id)
         to_node = self.find_node(to)
         getattr(node, typ)(to_node, **data)
-        self.write({'from_node': node_id, 'to': to, 'link_type': typ, 'data': data})
+        self.write({'from_node': node_id,
+                'to': to,
+                'link_type': typ,
+                'data': data})

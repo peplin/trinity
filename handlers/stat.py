@@ -8,7 +8,7 @@ import importlib
 from handlers.base import BaseHandler
 
 class StatHandler(BaseHandler):
-    @neo4j.transactional(graph)
+    @neo4j.transactional(BaseHandler.graph)
     def get(self, node_id):
         name = self.get_argument('stat', None)
         node = self.find_node(node_id)

@@ -4,7 +4,7 @@ import tornado.testing
 import json
 
 import trinity
-from tests.test_node import NODE_DATA
+from test.test_node import NODE_DATA
 
 class StatHandlerTest(tornado.testing.AsyncHTTPTestCase):
     def get_app(self):

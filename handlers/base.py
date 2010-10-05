@@ -7,11 +7,11 @@ import tornado.web
 class BaseHandler(tornado.web.RequestHandler):
     @property
     def graph(self):
-        return self.application.graph
+        return self.application.db.graph
 
     @property
     def index(self):
-        return self.application.index
+        return self.application.db.index
 
     def find_node(self, node_id):
         node = self.index[node_id.lower()]

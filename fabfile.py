@@ -1,7 +1,7 @@
 #!/usr/bin/env python
 import os
 from fabric.api import *
-from fab_shared import (test, nose_test_runner, webpy_deploy as deploy,
+from fab_shared import (test, webpy_deploy as deploy,
         setup, development, production, localhost, staging, restart_webserver,
         rollback, lint, enable, disable, maintenancemode, rechef)
 
@@ -13,7 +13,11 @@ env.root_dir = os.path.abspath(os.path.dirname(__file__))
 env.pip_requirements = ["requirements/common.txt",]
 env.pip_requirements_dev = ["requirements/dev.txt",]
 env.pip_requirements_production = ["requirements/production.txt",]
-env.test_runner = nose_test_runner
 env.campfire_subdomain = 'bueda'
 env.campfire_room = 'Development'
 env.campfire_token = '63768eee94d96b7b18e2091f3919b2a2a3dcd12a'
+
+@runs_once
+def tornado_test_runner(deployment_type=None):
+    return local('test/run_tests.py', capture=False).return_code
+env.test_runner = tornado_test_runner

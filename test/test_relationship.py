@@ -5,7 +5,7 @@ import tornado.testing
 import json
 
 import trinity
-from tests.test_node import NODE_DATA
+from test.test_node import NODE_DATA
 
 RELATIONSHIP_DATA = {'to': 'bueda', 'data': {'other': 'data'},
         'type': 'MENTIONS'}
