@@ -14,7 +14,9 @@ class BaseHandler(tornado.web.RequestHandler):
         return self.application.db.index
 
     def find_node(self, node_id):
-        node = self.index[node_id.lower()]
+        if isinstance(node_id, basestring):
+            node_id = node_id.lower()
+        node = self.index[node_id]
         if not node:
             raise tornado.web.HTTPError(404, "node %s doesn't exist" % node_id)
         return node
@@ -30,9 +32,9 @@ class BaseHandler(tornado.web.RequestHandler):
             default=tornado.web.RequestHandler._ARG_DEFAULT, strip=True):
         if not self.request.arguments:
             self.load_json()
-        arg = self.request.arguments[name]
-        if not arg:
+        if name not in self.request.arguments:
             if default is self._ARG_DEFAULT:
-                raise tornado.web.HTTPError(404, "Missing argument %s" % name)
+                raise tornado.web.HTTPError(400, "Missing argument %s" % name)
             return default
+        arg = self.request.arguments[name]
         return arg

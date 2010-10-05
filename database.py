@@ -16,12 +16,12 @@ class Connection(object):
     def shutdown(self):
         """Closes this database connection."""
         if getattr(self, "_graph", None) is not None:
-            self._graph.shutdown()
-            self._graph = None
-            self._index = None
+            self.graph.shutdown()
+            self.graph = None
+            self.index = None
 
     def reconnect(self):
         """Closes the existing database connection and re-opens it."""
         self.shutdown()
-        self._graph = neo4j.GraphDatabase(self.path)
-        self._index = self._graph.index('objects', create=True)
+        self.graph = neo4j.GraphDatabase(self.path)
+        self.index = self.graph.index('objects', create=True)
