@@ -1,5 +1,8 @@
 import neo4j
 
+from logbook import Logger
+log = Logger('trinity.topics')
+
 class SubTopics(neo4j.Traversal):
     """Traverser that yields all subcategories of a category."""
     types = [neo4j.Incoming.is_a]
@@ -21,9 +24,78 @@ class Topics(neo4j.Traversal):
         return not position.is_start and\
             position.last_relationship.type == 'is_a'
 
+
+
+#get the neighbours of the the node through 
+def get_outgoing_neighbours_mentions(graph, index, node):
+    neighbours = []
+    with graph.transaction:
+        for r in node.relationships('mentions_concept','mentions').outgoing:
+                n = r.getOtherNode(node)
+                if n != node:
+                    neighbours.append((r,n))
+    return neighbours
+
+#get the neighbours of the the node through 
+def get_outgoing_neighbours_type(graph, index, node):
+    neighbours = []
+    with graph.transaction:
+        for r in node.relationships('is_a').outgoing:
+                n = r.getOtherNode(node)
+                if n != node:
+                    neighbours.append((r,n))
+    return neighbours
+
+
+def get_subtopic_types(graph, index, subtopic):
+    types = get_outgoing_neighbours_type(graph, index, subtopic)
+    typeDict = {}
+    #for type in types:
+        
+
+    
+def get_topics(graph, index, node):
+    subtopics = get_outgoing_neighbours_mentions(graph, index, node)
+    TD = {}
+    for rs, subt in subtopics:
+        topics =  get_outgoing_neighbours_type(graph, index, subt)
+        rscount = 0
+        try:
+            rscount = rs["count"]
+        except:
+            rscount = 1
+            
+        for rt, t in topics:
+            if t not in TD:
+                TD[t] = {"count":rscount,
+                         "subtopics":[{"name": subt["name"], 
+                                       "info":{},
+                                       "subtopicts":{},
+                                       "source" : [rs["text"]],
+                                       "count": rscount}
+                                     ],
+                         "info":{},
+                         "source": [rs["text"]],
+                         "name": t["name"]
+                         }
+            elif t in TD:
+                t_props = TD[t]
+                t_props["count"] = t_props["count"] + rscount
+                
+                #if rs["text"] not in tprops["source"]:
+                t_props["source"].append(rs["text"])
+                
+                t_props["subtopics"].append({"name": subt["name"], 
+                                             "info":{},
+                                             "subtopicts":{},
+                                             "source" : [rs["text"]],
+                                             "count": rscount}) 
+                
+    topiclist = [TD[topic] for topic in TD.keys()]
+    return topiclist
+    
+
 def run(graph, index, node):
-    topics = {}
-    for topic in Topics(node):
-        # TODO need to give this '1' some meaning
-        topics[topic["name"]] = [{sub["name"]: 1} for sub in SubTopics(topic)]
+    topics = get_topics(graph, index, node)           
+    log.debug("Topics: %s" % topics)
     return topics

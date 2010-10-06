@@ -1,0 +1,14 @@
+*.log
+.project
+.pydevproject
+*.pyc
+*.swp
+pip-log.txt
+db
+env
+requirements/src/
+requirements/build/
+env
+*.tar.gz
+*.tar
+src
