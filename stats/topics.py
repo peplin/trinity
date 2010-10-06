@@ -24,5 +24,6 @@ class Topics(neo4j.Traversal):
 def run(graph, index, node):
     topics = {}
     for topic in Topics(node):
-        topics[topic["name"]] = [sub["name"] for sub in SubTopics(topic)]
+        # TODO need to give this '1' some meaning
+        topics[topic["name"]] = [{sub["name"]: 1} for sub in SubTopics(topic)]
     return topics
