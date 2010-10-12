@@ -21,7 +21,7 @@ of operations.
 
 * Java Runtime Environment
 
-    $ sudo apt-get install default-jre
+    $ sudo apt-get install default-jdk
 
 * jcc
 
