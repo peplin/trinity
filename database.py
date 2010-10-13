@@ -1,5 +1,6 @@
 import neo4j
 import os.path
+import shutil
 
 class Connection(object):
     def __init__(self, path):
@@ -9,16 +10,17 @@ class Connection(object):
         self.path = path
         self.reconnect()
 
-    def __del__(self):
-        # LH #3 - this isn't being called
-        self.shutdown()
-
     def shutdown(self):
         """Closes this database connection."""
-        if getattr(self, "_graph", None) is not None:
+        if getattr(self, "graph", None) is not None:
             self.graph.shutdown()
             self.graph = None
             self.index = None
+
+    def reset(self):
+        self.shutdown()
+        shutil.rmtree(self.path)
+        self.reconnect()
 
     def reconnect(self):
         """Closes the existing database connection and re-opens it."""

@@ -2,9 +2,8 @@
 import unittest
 
 TEST_MODULES = [
-    # TODO can only run one of these at a time, or else neo4j explodes
-    #'test.test_node',
-    #'test.test_stat',
+    'test.test_node',
+    'test.test_stat',
     'test.test_relationship',
 ]
 
