@@ -12,11 +12,20 @@ class RelationshipHandler(BaseHandler):
         typ = self.get_json_argument('link_type')
         to = self.get_json_argument('to')
         data = self.get_json_argument('data', {})
+        append = self.get_json_argument('append', False)
 
         node = self.find_node(node_id)
         to_node = self.find_node(to)
-        getattr(node, typ)(to_node, **data)
+        
+        relationship = None
+        if append:
+            for existing_relationship in getattr(node, typ):
+                if existing_relationship.getOtherNode(node) == to_node:
+                    relationship = existing_relationship.update(**data)
+                    break
+        if not relationship:
+            relationship = getattr(node, typ)(to_node, **data)
         self.write({'from_node': node_id,
                 'to': to,
                 'link_type': typ,
-                'data': data})
+                'data': dict(relationship.items())})

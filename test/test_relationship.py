@@ -41,4 +41,17 @@ class RelationshipHandlerTest(tornado.testing.AsyncHTTPTestCase):
                 body=json.dumps(self.data)), self.stop)
         response = self.wait()
         eq_(response.code, 200)
+        data = json.loads(response.body)
+        eq_(data['data']['other'], self.data['data']['other'])
 
+    def test_append_relationship(self):
+        self.data['append'] = True
+        self.data['data']['new_data'] = 'bamf'
+        self.http_client.fetch(HTTPRequest(
+                self.get_url('/node/%s/relationships' % NODE_DATA['id']),
+                'POST',
+                body=json.dumps(self.data)), self.stop)
+        response = self.wait()
+        eq_(response.code, 200)
+        data = json.loads(response.body)
+        eq_(data['data']['new_data'], self.data['data']['new_data'])
