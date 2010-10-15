@@ -3,13 +3,10 @@ from tornado.httpclient import HTTPRequest
 import tornado.testing
 import json
 
-import trinity
 from test.test_node import NODE_DATA
+from test.base import BaseTrinityTest
 
-class StatHandlerTest(tornado.testing.AsyncHTTPTestCase):
-    def get_app(self):
-        return trinity.Trinity()
-
+class StatHandlerTest(BaseTrinityTest):
     def setUp(self):
         super(StatHandlerTest, self).setUp()
         self.http_client.fetch(HTTPRequest(

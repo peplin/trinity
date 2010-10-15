@@ -1,24 +1,17 @@
 from nose.tools import ok_, eq_
-from random import random
 from tornado.httpclient import HTTPRequest
-import tornado.testing
 import json
 
-import trinity
 from test.test_node import NODE_DATA
+from test.base import BaseTrinityTest
 
 ANOTHER_NODE_DATA = NODE_DATA.copy()
-# LH #3 need a way to reset the graph after each test
-NODE_DATA['id'] = int(random() * 1000000000)
-ANOTHER_NODE_DATA['id'] = int(random() * 1000000000)
+ANOTHER_NODE_DATA['id'] = 'peplin'
 
 RELATIONSHIP_DATA = {'to': ANOTHER_NODE_DATA['id'], 'data': {'other': 'data'},
         'link_type': 'MENTIONS'}
 
-class RelationshipHandlerTest(tornado.testing.AsyncHTTPTestCase):
-    def get_app(self):
-        return trinity.Trinity()
-
+class RelationshipHandlerTest(BaseTrinityTest):
     def setUp(self):
         super(RelationshipHandlerTest, self).setUp()
 
@@ -41,4 +34,17 @@ class RelationshipHandlerTest(tornado.testing.AsyncHTTPTestCase):
                 body=json.dumps(self.data)), self.stop)
         response = self.wait()
         eq_(response.code, 200)
+        data = json.loads(response.body)
+        eq_(data['data']['other'], self.data['data']['other'])
 
+    def test_append_relationship(self):
+        self.data['append'] = True
+        self.data['data']['new_data'] = 'bamf'
+        self.http_client.fetch(HTTPRequest(
+                self.get_url('/node/%s/relationships' % NODE_DATA['id']),
+                'POST',
+                body=json.dumps(self.data)), self.stop)
+        response = self.wait()
+        eq_(response.code, 200)
+        data = json.loads(response.body)
+        eq_(data['data']['new_data'], self.data['data']['new_data'])

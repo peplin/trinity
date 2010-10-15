@@ -1,8 +1,5 @@
 import neo4j
 
-from logbook import Logger
-log = Logger('trinity.topics')
-
 class SubTopics(neo4j.Traversal):
     """Traverser that yields all subcategories of a category."""
     types = [neo4j.Incoming.is_a]
@@ -97,5 +94,4 @@ def get_topics(graph, index, node):
 
 def run(graph, index, node):
     topics = get_topics(graph, index, node)           
-    log.debug("Topics: %s" % topics)
     return topics
