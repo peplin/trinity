@@ -38,3 +38,7 @@ class BaseHandler(tornado.web.RequestHandler):
             return default
         arg = self.request.arguments[name]
         return arg
+
+    def write(self):
+        # TODO override to handle JPype
+        
