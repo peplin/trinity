@@ -3,10 +3,11 @@ import random
 
 
 DEFAULT_DEPTH = 5
-NUM_WALKS = 100
+NUM_WALKS = 1000
 # Passed sorted list (desc order), return top nodes
-TO_RETURN = lambda x: x[:10]
+TO_RETURN = lambda x: x
 random.seed()
+
 
 def random_walk(graph, node, depth=DEFAULT_DEPTH):
     if depth == 0:
@@ -28,7 +29,11 @@ def random_walk(graph, node, depth=DEFAULT_DEPTH):
 
 def run(graph, index, node):
     nodes = {}
+    walk_count = 0
     for i in range(NUM_WALKS):
+        if walk_count % 100 == 0:
+            print walk_count
+        walk_count += 1
         with graph.transaction:
             walked_nodes = random_walk(graph, node)
         # Loop through nodes (that aren't the start node), count
