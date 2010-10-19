@@ -9,7 +9,7 @@ from handlers.base import BaseHandler
 class NodeHandler(BaseHandler):
     @neo4j.transactional(BaseHandler.graph)
     def post(self):
-        node_id = self.get_json_argument('id')
+        node_id = unicode(self.get_json_argument('id'))
         if isinstance(node_id, basestring):
             node_id = node_id.lower()
         params = self.get_json_argument('node', {})
