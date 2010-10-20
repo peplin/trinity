@@ -41,7 +41,7 @@ class BaseHandler(tornado.web.RequestHandler):
         if isinstance(node_id, basestring):
             node_id = node_id.lower()
         node = self.index[node_id]
-        if not node:
+        if node is None:
             raise tornado.web.HTTPError(404, "node %s doesn't exist" % node_id)
         return node
 
