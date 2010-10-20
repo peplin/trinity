@@ -53,7 +53,8 @@ class BaseHandler(tornado.web.RequestHandler):
                     % self.request.body)
 
     def get_json_argument(self, name, default=None):
-        default = default or tornado.web.RequestHandler._ARG_DEFAULT
+        if default is None:
+            default = self._ARG_DEFAULT
         if not self.request.arguments:
             self.load_json()
         if name not in self.request.arguments:
