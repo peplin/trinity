@@ -25,7 +25,6 @@ class RelationshipHandler(BaseHandler):
                     break
         if not relationship:
             relationship = getattr(node, typ)(to_node, **data)
-        # TODO relationship can contain JPype junk, need our own serializer
         self.write({'from_node': node_id,
                 'to': to,
                 'link_type': typ,

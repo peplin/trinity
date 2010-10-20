@@ -8,24 +8,14 @@ import tornado.web
 class JPypeJSONEncoder(json.JSONEncoder):
     """JSONEncoder subclass that knows how to encode JPype. """
     def default(self, data):
-        try:
-            return super(JPypeJSONEncoder, self).default(data)
-        except TypeError:
-            # TODO this will not work for nested dictionaries or lists.
+        if 'jpype' in unicode(data.__class__):
+            value = unicode(data)
             try:
-                if isinstance(data, dict):
-                    return dict([(key, super(JPypeJSONEncoder, self).default(
-                            value)) for key, value in data.iteritems()])
-                elif hasattr(data, '__iter__'):
-                    return [super(JPypeJSONEncoder, self).default(value)
-                            for value in data]
+                value = int(value)
             except TypeError:
-                value = unicode(data)
-                try:
-                    value = int(value)
-                except TypeError:
-                    pass
-                return value
+                pass
+            return value
+        return
 
 
 class BaseHandler(tornado.web.RequestHandler):
