@@ -4,29 +4,29 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 
-import simplejson
-import datetime
 
-from tornado import escape
-
-
-class JPypeJSONEncoder(simplejson.JSONEncoder):
-    """
-    JSONEncoder subclass that knows how to encode JPype
-    """
-    def default(self, o):
+class JPypeJSONEncoder(json.JSONEncoder):
+    """JSONEncoder subclass that knows how to encode JPype. """
+    def default(self, data):
         try:
-            return super(JPypeJSONEncoder, self).default(o)
+            return super(JPypeJSONEncoder, self).default(data)
         except TypeError:
+            # TODO this will not work for nested dictionaries or lists.
             try:
-                if isinstance(o,dict):
-                    return dict([ (k, super(JPypeJSONEncoder, self).default(v)) for k, v in data.iteritems() ])
-                elif isinstance(o, (tuple, list, set)):
-                    return [ super(JPypeJSONEncoder, self).default(v) for v in data ]
-            #if it is a primitive of type int
+                if isinstance(data, dict):
+                    return dict([(key, super(JPypeJSONEncoder, self).default(
+                            value)) for key, value in data.iteritems()])
+                elif hasattr(data, '__iter__'):
+                    return [super(JPypeJSONEncoder, self).default(value)
+                            for value in data]
             except TypeError:
-                print type(o)
-                return int(unicode(o))
+                value = unicode(data)
+                try:
+                    value = int(value)
+                except TypeError:
+                    pass
+                return value
+
 
 class BaseHandler(tornado.web.RequestHandler):
     @property
@@ -52,8 +52,8 @@ class BaseHandler(tornado.web.RequestHandler):
             raise tornado.web.HTTPError(400, "Could not decode JSON: %s"
                     % self.request.body)
 
-    def get_json_argument(self, name,
-            default=tornado.web.RequestHandler._ARG_DEFAULT, strip=True):
+    def get_json_argument(self, name, default=None):
+        default = default or tornado.web.RequestHandler._ARG_DEFAULT
         if not self.request.arguments:
             self.load_json()
         if name not in self.request.arguments:
@@ -63,34 +63,11 @@ class BaseHandler(tornado.web.RequestHandler):
         arg = self.request.arguments[name]
         return arg
 
-
-    def _utf8(self,s):
-        if isinstance(s, unicode):
-            return s.encode("utf-8")
-        assert isinstance(s, str)
-        return s
-
-
     def write(self, chunk):
-        # TODO override to handle JPype
-        """Writes the given chunk to the output buffer.
-
-        To write the output to the network, use the flush() method below.
-
-        If the given chunk is a dictionary, we write it as JSON and set
-        the Content-Type of the response to be text/javascript.
-
-        Note that lists are not converted to JSON because of a potential
-        cross-site security vulnerability.  All JSON output should be
-        wrapped in a dictionary.  More details at
-        http://haacked.com/archive/2008/11/20/anatomy-of-a-subtle-json-vulnerability.aspx
+        """If chunk is a dict, writes out to JSON using custom serializer than
+        handlers JPype objects.
         """
-        assert not self._finished
         if isinstance(chunk, dict):
-            chunk = simplejson.dumps(chunk, cls=JPypeJSONEncoder, indent=4)
-            #chunk = simplejson.dumps(chunk)
-            #chunk = escape.json_encode(chunk)
+            chunk = json.dumps(chunk, cls=JPypeJSONEncoder)
             self.set_header("Content-Type", "text/javascript; charset=UTF-8")
-        chunk = self._utf8(chunk)
-        self._write_buffer.append(chunk)
-        
+        super(BaseHandler, self).write(chunk)
