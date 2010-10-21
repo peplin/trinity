@@ -8,8 +8,8 @@ from test.base import BaseTrinityTest
 ANOTHER_NODE_DATA = NODE_DATA.copy()
 ANOTHER_NODE_DATA['id'] = 'peplin'
 
-RELATIONSHIP_DATA = {'to': ANOTHER_NODE_DATA['id'], 'data': {'other': 'data'},
-        'link_type': 'MENTIONS'}
+RELATIONSHIP_DATA = {'to': ANOTHER_NODE_DATA['id'], 'data': {'other': 'data',
+        'count': 1}, 'link_type': 'MENTIONS'}
 
 class RelationshipHandlerTest(BaseTrinityTest):
     def setUp(self):
@@ -48,3 +48,14 @@ class RelationshipHandlerTest(BaseTrinityTest):
         eq_(response.code, 200)
         data = json.loads(response.body)
         eq_(data['data']['new_data'], self.data['data']['new_data'])
+
+    def test_increment_attribute(self):
+        self.data['increment'] = 'count'
+        self.http_client.fetch(HTTPRequest(
+                self.get_url('/node/%s/relationships' % NODE_DATA['id']),
+                'POST',
+                body=json.dumps(self.data)), self.stop)
+        response = self.wait()
+        eq_(response.code, 200)
+        data = json.loads(response.body)
+        eq_(data['data']['count'], self.data['data']['count'] + 1)
