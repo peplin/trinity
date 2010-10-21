@@ -50,7 +50,7 @@ class RelationshipHandlerTest(BaseTrinityTest):
         eq_(data['data']['new_data'], self.data['data']['new_data'])
 
     def test_increment_attribute(self):
-        self.data['increment'] = 'count'
+        self.data['increment'] = ['count']
         self.http_client.fetch(HTTPRequest(
                 self.get_url('/node/%s/relationships' % NODE_DATA['id']),
                 'POST',

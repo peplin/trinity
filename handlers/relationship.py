@@ -13,6 +13,7 @@ class RelationshipHandler(BaseHandler):
         to = self.get_json_argument('to')
         data = self.get_json_argument('data', {})
         append = self.get_json_argument('append', False)
+        increment_attributes = self.get_json_argument('increment', [])
 
         node = self.find_node(node_id)
         to_node = self.find_node(to)
@@ -25,6 +26,16 @@ class RelationshipHandler(BaseHandler):
                     break
         if not relationship:
             relationship = getattr(node, typ)(to_node, **data)
+
+        for increment_attribute in increment_attributes:
+            original = relationship.get(increment_attribute, 0)
+            try:
+                # LH #30 - handle JPype objects that bubble up
+                relationship[increment_attribute] = int(unicode(original)) + 1
+            except TypeError:
+                raise tornado.web.HTTPError(400,
+                        "Existing attribute (%s = %s) is not incrementable"
+                        % (increment_attribute, original))
         self.write({'from_node': node_id,
                 'to': to,
                 'link_type': typ,
