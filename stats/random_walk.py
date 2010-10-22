@@ -47,7 +47,6 @@ def random_walk(node, depth=DEFAULT_DEPTH):
             break
         current_node = get_next_node(current_node[1])
         
-        if current_node[1] = "same_as"         
         if current_node is None:
             break   
     return path
