@@ -10,7 +10,7 @@ logger = commonware.log.getLogger('trinity')
 
 
 DEFAULT_DEPTH = 5
-NUM_WALKS = 10
+NUM_WALKS = 10000
 random.seed()
 
 def get_dict(node):
@@ -35,14 +35,10 @@ def get_nx_graph(graph, start, maxpath=6):
     
     while len(queue)>0:
 
-        #print len(queue)
 
         v = queue.popleft()
         currentNode = maps[v]
         D[v] = ID[v]
-
-        if v == 2:
-            print "here"
 
         
         if D[v] > maxpath:
