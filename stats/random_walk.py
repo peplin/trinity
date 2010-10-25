@@ -1,7 +1,8 @@
 import neo4j
 import random
 import operator
-
+import networkx as nx
+from collections import deque
 
 import commonware.log
 logger = commonware.log.getLogger('trinity')
@@ -9,34 +10,90 @@ logger = commonware.log.getLogger('trinity')
 
 
 DEFAULT_DEPTH = 5
-NUM_WALKS = 10000
+NUM_WALKS = 10
 random.seed()
 
+def get_dict(node):
+    d = {}
+    for k in node:
+        d[k] = node[k]
+    return d
+
+def get_nx_graph(graph, start, maxpath=6):
+    D = {}
+    ID = {}
+    maps = {}
+    nxgraph = nx.MultiDiGraph()
+    queue = deque()
+    
+    ID[start.id] = 0
+    
+    ndict = get_dict(start)
+    nxgraph.add_node(start.id, **ndict)
+    maps[start.id] = start
+    queue.append(start.id)
+    
+    while len(queue)>0:
+
+        #print len(queue)
+
+        v = queue.popleft()
+        currentNode = maps[v]
+        D[v] = ID[v]
+
+        if v == 2:
+            print "here"
+
+        
+        if D[v] > maxpath:
+            break
+        for r in currentNode.relationships().outgoing:
+            if r.type == 'same_as':
+                sameNode = r.getOtherNode(currentNode)
+                nd2 = get_dict(sameNode) 
+                for r1 in sameNode.relationships().outgoing:
+                    endNode = r1.getOtherNode(sameNode)
+                    nd2.update(get_dict(endNode))
+                    nxgraph.add_node(endNode.id, **nd2)
+                    vw1length = D[v] + 1
+                    ID[endNode.id] = vw1length 
+                    maps[endNode.id] = endNode
+                    nxgraph.add_edge(v, endNode.id, type=r1.type)
+                    queue.append(endNode.id)
+            elif r == 'mentions':
+                continue
+            else:
+                endNode = r.getOtherNode(currentNode)
+                nd2 = get_dict(endNode) 
+                maps[endNode.id] = endNode
+                #add the edge to the nx graph
+                vwLength = D[v] + 1
+                nxgraph.add_node(endNode.id, **nd2)
+                ID[endNode.id] = vwLength
+                nxgraph.add_edge(v, endNode.id, type=r.type)
+                queue.append(endNode.id)
+            
+    return nxgraph
 
 
-def get_next_node(node):
-    # get the count of relationships
-    # select a random number
-    # select the node
-    count = 0
-    neighbours=[]
-    for r in node.relationships().outgoing:
-        count += 1
-        neighbours.append((r.type,r.getOtherNode(node)))
 
-    if count == 0:
+def get_next_node(graph, nodeid):
+    outd = graph.out_degree(nodeid)
+
+    if outd == 0:
         return None
     else:
-        rand_node_id = random.randrange(count)
-        return neighbours[rand_node_id]
-
-
-def random_walk(node, depth=DEFAULT_DEPTH):
-    if depth == 0:
-        return [node]
+        rand_edge = random.randrange(graph.out_degree(nodeid))
+        edge = graph.out_edges(nodeid,data=True)[rand_edge]
     
+        return (edge[2]["type"], edge[1])
+
+
+def random_walk(graph, nodeid, depth=DEFAULT_DEPTH):
+    if depth == 0:
+        return [nodeid]    
     path = []
-    current_node = ("start",node)
+    current_node = ("start",nodeid)
     while 1:
 
         # select the node
@@ -45,7 +102,8 @@ def random_walk(node, depth=DEFAULT_DEPTH):
         
         if len(path)>=depth:
             break
-        current_node = get_next_node(current_node[1])
+        current_node = get_next_node(graph, current_node[1])
+        
         
         if current_node is None:
             break   
@@ -53,7 +111,7 @@ def random_walk(node, depth=DEFAULT_DEPTH):
 
 
 
-def get_user_topics(node):
+def get_user_topics(graph, node):
     logger.debug(u'getting topics for %s' % node)
     walk_count = 0
     P = {} # dictionary of predecessors
@@ -64,7 +122,7 @@ def get_user_topics(node):
             logger.debug(walk_count)
         walk_count += 1
 
-        path = random_walk(node)
+        path = random_walk(graph, node)
         if len(path) > 2:
             logger.debug("found one")
         previous_node = node            
@@ -89,35 +147,44 @@ def get_user_topics(node):
 def get_normalized_count(name):
     return 1
 
-def normalize_counts(user_counts):
+def normalize_counts(graph, user_counts):
     normalized = {}
     for k, v in user_counts.items():
-        normalized[k] = user_counts[k] / get_normalized_count(k["name"])
+        normalized[k] = user_counts[k] / get_normalized_count(graph.node[k]["name"])
     return normalized
 
 def get_topics(graph, node):
 
     max_topics = 6
     topics = []
-
+    
+    nxgraph = None
+    nodeid = node.id
+    
     with graph.transaction:
-        user_counts, user_pred = get_user_topics(node)
-        counts = normalize_counts(user_counts)
+        nxgraph = get_nx_graph(graph, node, maxpath=max_topics)
+
+    graph.shutdown()
+
+    if nxgraph:
+        user_counts, user_pred = get_user_topics(nxgraph, nodeid)
+        counts = normalize_counts(nxgraph, user_counts)
         sorted_counts = sorted(counts.iteritems(), key=operator.itemgetter(1), reverse= True)
         if len(sorted_counts) < max_topics:
             max_topics = len(sorted_counts)
         
         for topic, count in sorted_counts[:max_topics]:            
-            topics.append(get_subtopics_recursive(topic, user_pred, counts, node))
-        
-        
-    graph.shutdown()
-    return topics
+            topics.append(get_subtopics_recursive(nxgraph, topic, user_pred, counts, nodeid))
+            
+            
+        return topics
+    else:
+        return None
     
 
-def get_subtopics_recursive(topic, pred, counts, user):
-    t= {}
-    for k, v in topic.items():
+def get_subtopics_recursive(graph, topic, pred, counts, user):
+    t= {}    
+    for k, v in graph.node[topic].items():
         t[k] = v
     t["count"] = counts[topic]
     
@@ -129,7 +196,7 @@ def get_subtopics_recursive(topic, pred, counts, user):
             if user == sbtopic:
                 continue
             else:
-                subtopics.append(get_subtopics_recursive(sbtopic, pred, counts, user))
+                subtopics.append(get_subtopics_recursive(graph, sbtopic, pred, counts, user))
         t["subtopics"] = subtopics
         
     return t
