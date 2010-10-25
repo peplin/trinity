@@ -34,12 +34,9 @@ def get_nx_graph(graph, start, maxpath=6):
     queue.append(start.id)
     
     while len(queue)>0:
-
-
         v = queue.popleft()
         currentNode = maps[v]
         D[v] = ID[v]
-
         
         if D[v] > maxpath:
             break
@@ -71,8 +68,6 @@ def get_nx_graph(graph, start, maxpath=6):
             
     return nxgraph
 
-
-
 def get_next_node(graph, nodeid):
     outd = graph.out_degree(nodeid)
 
@@ -81,9 +76,7 @@ def get_next_node(graph, nodeid):
     else:
         rand_edge = random.randrange(graph.out_degree(nodeid))
         edge = graph.out_edges(nodeid,data=True)[rand_edge]
-    
         return (edge[2]["type"], edge[1])
-
 
 def random_walk(graph, nodeid, depth=DEFAULT_DEPTH):
     if depth == 0:
@@ -91,36 +84,24 @@ def random_walk(graph, nodeid, depth=DEFAULT_DEPTH):
     path = []
     current_node = ("start",nodeid)
     while 1:
-
-        # select the node
-        # and add it to the path        
+        # select the node and add it to the path
         path.append(current_node)
-        
-        if len(path)>=depth:
+        if len(path) >= depth:
             break
+
         current_node = get_next_node(graph, current_node[1])
-        
-        
         if current_node is None:
-            break   
+            break
+
     return path
-
-
 
 def get_user_topics(graph, node):
     logger.debug(u'getting topics for %s' % node)
-    walk_count = 0
     P = {} # dictionary of predecessors
     C = {} # dictionary of counts
     
     for i in range(NUM_WALKS):
-        if walk_count % 100 == 0:
-            logger.debug(walk_count)
-        walk_count += 1
-
         path = random_walk(graph, node)
-        if len(path) > 2:
-            logger.debug("found one")
         previous_node = node            
         for r, n in path[1:]:
             # add the predecessors
@@ -139,7 +120,6 @@ def get_user_topics(graph, node):
             
     return (C, P)
 
-
 def get_normalized_count(name):
     norm_count = yapi(name)
     return norm_count
@@ -151,7 +131,6 @@ def normalize_counts(graph, user_counts):
     return normalized
 
 def get_topics(graph, node):
-
     max_topics = 6
     topics = []
     
@@ -161,8 +140,6 @@ def get_topics(graph, node):
     logger.debug(u'executing networkx graph transformation')
     with graph.transaction:
         nxgraph = get_nx_graph(graph, node, maxpath=max_topics)
-
-    #graph.shutdown()
 
     if nxgraph:
         user_counts, user_pred = get_user_topics(nxgraph, nodeid)
@@ -181,7 +158,6 @@ def get_topics(graph, node):
     else:
         return None
     
-
 def get_subtopics_recursive(graph, topic, pred, counts, user):
     t= {}    
     for k, v in graph.node[topic].items():
