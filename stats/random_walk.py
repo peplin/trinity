@@ -6,7 +6,7 @@ from util import yapi
 from collections import deque
 
 import commonware.log
-logger = commonware.log.getLogger('trinity')
+logger = commonware.log.getLogger('trinity.stats,random_walk')
 
 
 DEFAULT_DEPTH = 5
@@ -141,7 +141,8 @@ def get_user_topics(graph, node):
 
 
 def get_normalized_count(name):
-    return 1
+    norm_count = yapi(name)
+    return norm_count
 
 def normalize_counts(graph, user_counts):
     normalized = {}
@@ -157,6 +158,7 @@ def get_topics(graph, node):
     nxgraph = None
     nodeid = node.id
     
+    logger.debug(u'executing networkx graph transformation')
     with graph.transaction:
         nxgraph = get_nx_graph(graph, node, maxpath=max_topics)
 
@@ -164,11 +166,13 @@ def get_topics(graph, node):
 
     if nxgraph:
         user_counts, user_pred = get_user_topics(nxgraph, nodeid)
+        logger.debug(u'normalizing counts')
         counts = normalize_counts(nxgraph, user_counts)
         sorted_counts = sorted(counts.iteritems(), key=operator.itemgetter(1), reverse= True)
         if len(sorted_counts) < max_topics:
             max_topics = len(sorted_counts)
-        
+
+        logger.debug(u'generating subtopics')
         for topic, count in sorted_counts[:max_topics]:            
             topics.append(get_subtopics_recursive(nxgraph, topic, user_pred, counts, nodeid))
             
