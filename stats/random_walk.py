@@ -1,8 +1,9 @@
 import neo4j
 import random
+from util import yapi
 
 
-DEFAULT_DEPTH = 5
+DEFAULT_DEPTH = 3 
 NUM_WALKS = 1000
 # Passed sorted list (desc order), return top nodes
 TO_RETURN = lambda x: x
@@ -17,8 +18,8 @@ def random_walk(graph, node, depth=DEFAULT_DEPTH):
     neighbors = {}
     i = 0
     for r in node.relationships().outgoing:
-        neighbors[(i, i + int(r['count']))] = r.getOtherNode(node)
-        i += int(r['count'])
+        neighbors[(i, i + 1)] = r.getOtherNode(node)
+        i += 1 
     if i == 0:
         # No neighbors
         return [node]
@@ -29,11 +30,7 @@ def random_walk(graph, node, depth=DEFAULT_DEPTH):
 
 def run(graph, index, node):
     nodes = {}
-    walk_count = 0
     for i in range(NUM_WALKS):
-        if walk_count % 100 == 0:
-            print walk_count
-        walk_count += 1
         with graph.transaction:
             walked_nodes = random_walk(graph, node)
         # Loop through nodes (that aren't the start node), count
@@ -42,6 +39,25 @@ def run(graph, index, node):
                 nodes[n] += 1
             else:
                 nodes[n] = 1
-    return TO_RETURN([{'name': n['name'], 'count': nodes[n]}
-            for n in sorted(nodes, key=nodes.__getitem__)])
+
+    # Have dict of nodes => count, weight each concept by freqency
+    frequencies = {}
+    for n in nodes:
+        frequencies[n] = yapi(n['name'])
+
+    max_frequency = 0
+    for f in frequencies:
+        if frequencies[f] > max_frequency:
+            max_frequency = frequencies[f]
+    max_count = 0
+    for n in nodes:
+        if nodes[n] > max_count:
+            max_count = nodes[n]
+    scaled_nodes = {}
+    for f in frequencies:
+        scaled_freq = float(frequencies[f]) / (float(max_frequency) / max_count)
+        scaled_nodes[f] = float(nodes[f]) / scaled_freq
+
+    return TO_RETURN([{'name': n['name'], 'count': scaled_nodes[n]}
+            for n in sorted(scaled_nodes, key=scaled_nodes.__getitem__)])
 

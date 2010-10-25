@@ -43,16 +43,23 @@ def get_outgoing_neighbours_type(graph, index, node):
                     neighbours.append((r,n))
     return neighbours
 
+def get_outgoing_neighbours_likes(graph, index, node):
+    neighbors = []
+    with graph.transaction:
+        for r in node.relationships('likes').outgoing:
+            n = r.getOtherNode(node)
+            if n != node:
+                neighbors.append((r,n))
+    return neighbors
 
 def get_subtopic_types(graph, index, subtopic):
     types = get_outgoing_neighbours_type(graph, index, subtopic)
     typeDict = {}
     #for type in types:
-        
-
     
 def get_topics(graph, index, node):
     subtopics = get_outgoing_neighbours_mentions(graph, index, node)
+    subtopics.extend(get_outgoing_neighbours_likes(graph, index, node))
     TD = {}
     for rs, subt in subtopics:
         topics =  get_outgoing_neighbours_type(graph, index, subt)
