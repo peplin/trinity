@@ -160,7 +160,7 @@ def get_topics(graph, node):
     with graph.transaction:
         nxgraph = get_nx_graph(graph, node, maxpath=max_topics)
 
-    graph.shutdown()
+    #graph.shutdown()
 
     if nxgraph:
         user_counts, user_pred = get_user_topics(nxgraph, nodeid)
