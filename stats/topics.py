@@ -74,7 +74,7 @@ def get_topics(graph, index, node):
                 TD[t] = {"count":rscount,
                          "subtopics":[{"name": subt["name"], 
                                        "info":{},
-                                       "subtopicts":{},
+                                       "subtopics":{},
                                        "source" : [rs["text"]],
                                        "count": rscount}
                                      ],
@@ -91,7 +91,7 @@ def get_topics(graph, index, node):
                 
                 t_props["subtopics"].append({"name": subt["name"], 
                                              "info":{},
-                                             "subtopicts":{},
+                                             "subtopics":{},
                                              "source" : [rs["text"]],
                                              "count": rscount}) 
                 
