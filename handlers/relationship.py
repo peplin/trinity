@@ -27,16 +27,15 @@ class RelationshipHandler(BaseHandler):
         if not relationship:
             relationship = getattr(node, typ)(to_node, **data)
 
-        if increment_attributes:
-            for increment_attribute in increment_attributes:
-                original = relationship.get(increment_attribute, 0)
-                try:
-                    # LH #30 - handle JPype objects that bubble up
-                    relationship[increment_attribute] = int(unicode(original)) + 1
-                except TypeError:
-                    raise tornado.web.HTTPError(400,
-                            "Existing attribute (%s = %s) is not incrementable"
-                            % (increment_attribute, original))
+        for increment_attribute in increment_attributes:
+            original = relationship.get(increment_attribute, 0)
+            try:
+                # LH #30 - handle JPype objects that bubble up
+                relationship[increment_attribute] = int(unicode(original)) + 1
+            except TypeError:
+                raise tornado.web.HTTPError(400,
+                        "Existing attribute (%s = %s) is not incrementable"
+                        % (increment_attribute, original))
         self.write({'from_node': node_id,
                 'to': to,
                 'link_type': typ,
