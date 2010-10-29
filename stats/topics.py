@@ -65,18 +65,18 @@ def get_topics(graph, index, node):
         topics =  get_outgoing_neighbours_type(graph, index, subt)
         rscount = 0
         try:
-            rscount = rs["count"]
+            rscount = rs["relevancy"]
         except:
             rscount = 1
             
         for rt, t in topics:
             if t not in TD:
-                TD[t] = {"count":rscount,
+                TD[t] = {"relevancy":rscount,
                          "subtopics":[{"name": subt["name"], 
                                        "info":{},
-                                       "subtopicts":{},
+                                       "subtopics":{},
                                        "source" : [rs["text"]],
-                                       "count": rscount}
+                                       "relevancy": rscount}
                                      ],
                          "info":{},
                          "source": [rs["text"]],
@@ -84,16 +84,16 @@ def get_topics(graph, index, node):
                          }
             elif t in TD:
                 t_props = TD[t]
-                t_props["count"] = t_props["count"] + rscount
+                t_props["relevancy"] = t_props["relevancy"] + rscount
                 
                 #if rs["text"] not in tprops["source"]:
                 t_props["source"].append(rs["text"])
                 
                 t_props["subtopics"].append({"name": subt["name"], 
                                              "info":{},
-                                             "subtopicts":{},
+                                             "subtopics":{},
                                              "source" : [rs["text"]],
-                                             "count": rscount}) 
+                                             "relevancy": rscount}) 
                 
     topiclist = [TD[topic] for topic in TD.keys()]
     return topiclist

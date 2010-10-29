@@ -8,6 +8,8 @@ from collections import deque
 import logging
 logger = logging.getLogger(__name__)
 
+#TODO requires same-as links to function well. Should work anyway
+
 
 DEFAULT_DEPTH = 5
 NUM_WALKS = 10000
@@ -162,7 +164,7 @@ def get_subtopics_recursive(graph, topic, pred, counts, user):
     t= {}    
     for k, v in graph.node[topic].items():
         t[k] = v
-    t["count"] = counts[topic]
+    t["relevancy"] = counts[topic]
     
     if topic not in pred:
         t["subtopics"] = []
