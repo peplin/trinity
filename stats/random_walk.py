@@ -10,7 +10,6 @@ logger = logging.getLogger(__name__)
 
 #TODO requires same-as links to function well. Should work anyway
 
-
 DEFAULT_DEPTH = 5
 NUM_WALKS = 10000
 random.seed()
@@ -18,7 +17,8 @@ random.seed()
 def get_dict(node):
     d = {}
     for k in node:
-        d[k] = node[k]
+        if k in ['source', 'name', 'relevancy', 'subtopics']:
+            d[k] = node[k]
     return d
 
 def get_nx_graph(graph, start, maxpath=6):

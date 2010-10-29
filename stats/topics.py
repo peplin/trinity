@@ -73,12 +73,12 @@ def get_topics(graph, index, node):
             if t not in TD:
                 TD[t] = {"relevancy":rscount,
                          "subtopics":[{"name": subt["name"], 
-                                       "info":{},
+                                       #"info":{},
                                        "subtopics":{},
                                        "source" : [rs["text"]],
                                        "relevancy": rscount}
                                      ],
-                         "info":{},
+                         #"info":{},
                          "source": [rs["text"]],
                          "name": t["name"]
                          }
@@ -88,9 +88,10 @@ def get_topics(graph, index, node):
                 
                 #if rs["text"] not in tprops["source"]:
                 t_props["source"].append(rs["text"])
+                t_props["source"] = list(set(t_props["source"]))
                 
                 t_props["subtopics"].append({"name": subt["name"], 
-                                             "info":{},
+                                             #"info":{},
                                              "subtopics":{},
                                              "source" : [rs["text"]],
                                              "relevancy": rscount}) 
