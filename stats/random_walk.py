@@ -41,13 +41,40 @@ def get_nx_graph(graph, start, maxpath=6):
         if D[v] > maxpath:
             break
         for r in currentNode.relationships().outgoing:
+            current_dict = get_dict(currentNode)
             if r.type == 'same_as':
+                sameNode = r.getOtherNode(currentNode)
+                current_dict.update(get_dict(sameNode))
+                
+                for r1 in sameNode.relationships().outgoing:
+                    endNode = r1.getOtherNode(sameNode)
+                    end_node_props = get_dict(endNode)
+                    nxgraph.add_node(endNode.id, **end_node_props)
+                    vw1length = D[v] + 1
+                    ID[endNode.id] = vw1length 
+                    maps[endNode.id] = endNode
+                    nxgraph.add_edge(v, endNode.id, type=r1.type)
+                    queue.append(endNode.id)
+            if r.type == 'twitter':
+                sameNode = r.getOtherNode(currentNode)
+                current_dict.update(get_dict(sameNode))
+                
+                for r1 in sameNode.relationships().outgoing:
+                    endNode = r1.getOtherNode(sameNode)
+                    end_node_props = get_dict(endNode)
+                    nxgraph.add_node(endNode.id, **end_node_props)
+                    vw1length = D[v] + 1
+                    ID[endNode.id] = vw1length 
+                    maps[endNode.id] = endNode
+                    nxgraph.add_edge(v, endNode.id, type=r1.type)
+                    queue.append(endNode.id)
+            if r.type == 'facebook':
                 sameNode = r.getOtherNode(currentNode)
                 nd2 = get_dict(sameNode) 
                 for r1 in sameNode.relationships().outgoing:
                     endNode = r1.getOtherNode(sameNode)
-                    nd2.update(get_dict(endNode))
-                    nxgraph.add_node(endNode.id, **nd2)
+                    end_node_props = get_dict(endNode)
+                    nxgraph.add_node(endNode.id, **end_node_props)
                     vw1length = D[v] + 1
                     ID[endNode.id] = vw1length 
                     maps[endNode.id] = endNode
@@ -122,12 +149,17 @@ def get_user_topics(graph, node):
 
 def get_normalized_count(name):
     norm_count = yapi(name)
+    #norm_count = 1
     return norm_count
 
 def normalize_counts(graph, user_counts):
     normalized = {}
     for k, v in user_counts.items():
-        normalized[k] = user_counts[k] / get_normalized_count(graph.node[k]["name"])
+        try:
+            name = graph.node[k]["name"]
+        except:
+            print "here"
+        normalized[k] = user_counts[k] / get_normalized_count(name)
     return normalized
 
 def get_topics(graph, node):

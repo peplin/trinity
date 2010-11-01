@@ -14,6 +14,8 @@ class JPypeJSONEncoder(json.JSONEncoder):
                 value = int(value)
             except TypeError:
                 pass
+            except ValueError:
+                value = bool(value)
             return value
         return
 
