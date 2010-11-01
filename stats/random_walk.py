@@ -159,8 +159,6 @@ def normalize_counts(graph, user_counts):
     for k, v in user_counts.items():
         try:
             name = graph.node[k]["name"]
-        except:
-            print "here"
         normalized[k] = user_counts[k] / get_normalized_count(name)
     return normalized
 
