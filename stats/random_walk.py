@@ -151,14 +151,13 @@ def get_user_topics(graph, node):
 
 def get_normalized_count(name):
     norm_count = yapi(name)
-    #norm_count = 1
     return norm_count
 
 def normalize_counts(graph, user_counts):
     normalized = {}
     for k, v in user_counts.items():
         name = graph.node[k]["name"]
-        normalized[k] = user_counts[k] / get_normalized_count(name)
+        normalized[k] = user_counts[k] / max(get_normalized_count(name), 1)
     return normalized
 
 def get_topics(graph, node):
