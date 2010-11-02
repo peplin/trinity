@@ -15,7 +15,7 @@ class StatHandler(BaseHandler):
     @neo4j.transactional(BaseHandler.graph)
     def get(self, node_id):
         name = self.get_argument('stat', None)
-        node = self.find_node(node_id)
+        node = self.find_node_or_404(node_id)
 
         try:
             module = importlib.import_module("stats.%s" % name)

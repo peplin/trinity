@@ -19,8 +19,8 @@ class RelationshipHandler(BaseHandler):
         append = self.get_json_argument('append', False)
         increment_attributes = self.get_json_argument('increment', [])
 
-        node = self.find_node(node_id)
-        to_node = self.find_node(to)
+        node = self.find_node_or_404(node_id)
+        to_node = self.find_node_or_404(to)
         
         relationship = None
         if append:
