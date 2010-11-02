@@ -21,3 +21,8 @@ env.campfire_token = '63768eee94d96b7b18e2091f3919b2a2a3dcd12a'
 def tornado_test_runner(deployment_type=None):
     return local('test/run_tests.py', capture=False).return_code
 env.test_runner = tornado_test_runner
+
+def reset():
+    import trinity
+    app = trinity.Trinity()
+    app.db.reset()
