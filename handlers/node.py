@@ -6,6 +6,10 @@ import tornado.web
 
 from handlers.base import BaseHandler
 
+import logging
+logger = logging.getLogger('trinity.' + __name__)
+
+
 class NodeHandler(BaseHandler):
     @neo4j.transactional(BaseHandler.graph)
     def post(self):
@@ -16,4 +20,8 @@ class NodeHandler(BaseHandler):
         if not node:
             node = self.graph.node(**params)
             self.index[node_id] = node
+            logger.debug("Created node %s with ID %s and data %s"
+                    % (node, node_id, params))
+        logger.debug("Found existing node %s with ID %s -- not creating another"
+                % (node, node_id))
         self.write({'id': node_id, 'node': params})

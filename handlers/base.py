@@ -4,6 +4,9 @@ import tornado.ioloop
 import tornado.options
 import tornado.web
 
+import logging
+logger = logging.getLogger('trinity.' + __name__)
+
 
 class JPypeJSONEncoder(json.JSONEncoder):
     """JSONEncoder subclass that knows how to encode JPype. """
@@ -34,15 +37,19 @@ class BaseHandler(tornado.web.RequestHandler):
             node_id = node_id.lower()
         node = self.index[node_id]
         if node is None:
-            raise tornado.web.HTTPError(404, "node %s doesn't exist" % node_id)
+            msg = "node %s doesn't exist" % node_id
+            logger.debug(msg)
+            raise tornado.web.HTTPError(404, msg)
+        logger.debug("Found node %s for node ID %s" % (node, node_id))
         return node
 
     def load_json(self):
         try:
             self.request.arguments = json.loads(self.request.body)
         except ValueError:
-            raise tornado.web.HTTPError(400, "Could not decode JSON: %s"
-                    % self.request.body)
+            msg = "Could not decode JSON: %s" % self.request.body
+            logger.debug(msg)
+            raise tornado.web.HTTPError(400, msg)
 
     def get_json_argument(self, name, default=None):
         if default is None:
@@ -51,9 +58,14 @@ class BaseHandler(tornado.web.RequestHandler):
             self.load_json()
         if name not in self.request.arguments:
             if default is self._ARG_DEFAULT:
-                raise tornado.web.HTTPError(400, "Missing argument %s" % name)
+                msg = "Missing argument %s" % name
+                logger.debug(msg)
+                raise tornado.web.HTTPError(400, msg)
+            logger.debug("Returning default argument %s, as we couldn't find "
+                    "%s in %s" % (default, name, self.request.arguments))
             return default
         arg = self.request.arguments[name]
+        logger.debug("Found %s: %s in JSON arguments" % (name, arg))
         return arg
 
     def write(self, chunk):
