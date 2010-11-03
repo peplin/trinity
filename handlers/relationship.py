@@ -22,6 +22,12 @@ class RelationshipHandler(BaseHandler):
         node = self.find_node_or_404(node_id)
         to_node = self.find_node_or_404(to)
 
+        if node == to_node:
+            msg = ("Start (%s) and end node (%s) can't be the same"
+                    % (node, to_node))
+            logger.debug(msg)
+            raise tornado.web.HTTPError(400, msg)
+
         relationship = None
         for existing_relationship in getattr(node, typ):
             if existing_relationship.getOtherNode(node) == to_node:
