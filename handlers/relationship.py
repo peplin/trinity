@@ -21,8 +21,20 @@ class RelationshipHandler(BaseHandler):
 
         node = self.find_node_or_404(node_id)
         to_node = self.find_node_or_404(to)
-        
+
         relationship = None
+        for existing_relationship in getattr(node, typ):
+            if existing_relationship.getOtherNode(node) == to_node:
+                relationship = existing_relationship
+
+        if relationship is None:
+            relationship = getattr(node, typ)(to_node, **data)
+            logger.debug("Created new relationship %s with attached data %s"
+                    % (relationship, data))
+        else:
+            logger.debug("Found existing relationship %s with "
+                    " -- not creating another" % relationship)
+
         if append:
             for existing_relationship in getattr(node, typ):
                 if existing_relationship.getOtherNode(node) == to_node:
@@ -30,15 +42,12 @@ class RelationshipHandler(BaseHandler):
                     logger.debug("Updated existing relationship %s to include "
                             "%s" % (relationship, data))
                     break
-        if not relationship:
-            relationship = getattr(node, typ)(to_node, **data)
-            logger.debug("Created new or found existing relationship %s with "
-                    "attached data %s" % (relationship, data))
 
         for increment_attribute in increment_attributes:
             original = relationship.get(increment_attribute, 0)
             try:
                 # LH #30 - handle JPype objects that bubble up
+                # TODO try without this...see if our encoder works
                 relationship[increment_attribute] = int(unicode(original)) + 1
             except TypeError:
                 msg = ("Existing attribute (%s = %s) is not incrementable"
