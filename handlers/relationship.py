@@ -44,7 +44,7 @@ class RelationshipHandler(BaseHandler):
         if append:
             for existing_relationship in getattr(node, typ):
                 if existing_relationship.getOtherNode(node) == to_node:
-                    relationship = existing_relationship.update(**data)
+                    existing_relationship = existing_relationship.update(**data)
                     logger.debug("Updated existing relationship %s to include "
                             "%s" % (relationship, data))
                     break
