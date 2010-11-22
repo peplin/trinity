@@ -2,8 +2,8 @@ from nose.tools import ok_, eq_
 from tornado.httpclient import HTTPRequest
 import json
 
-from test.test_node import NODE_DATA
-from test.base import BaseTrinityTest
+from tests.test_node import NODE_DATA
+from tests.base import BaseTrinityTest
 
 ANOTHER_NODE_DATA = NODE_DATA.copy()
 ANOTHER_NODE_DATA['id'] = 'peplin'

@@ -2,9 +2,9 @@
 import unittest
 
 TEST_MODULES = [
-    'test.test_node',
-    'test.test_stat',
-    'test.test_relationship',
+    'tests.test_node',
+    'tests.test_stat',
+    'tests.test_relationship',
 ]
 
 def all():
