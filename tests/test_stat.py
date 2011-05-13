@@ -3,8 +3,8 @@ from tornado.httpclient import HTTPRequest
 import tornado.testing
 import json
 
-from test.test_node import NODE_DATA
-from test.base import BaseTrinityTest
+from tests.test_node import NODE_DATA
+from tests.base import BaseTrinityTest
 
 class StatHandlerTest(BaseTrinityTest):
     def setUp(self):

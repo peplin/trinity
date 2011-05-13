@@ -2,8 +2,8 @@ from nose.tools import ok_, eq_
 from tornado.httpclient import HTTPRequest
 import json
 
-from test.test_node import NODE_DATA
-from test.base import BaseTrinityTest
+from tests.test_node import NODE_DATA
+from tests.base import BaseTrinityTest
 
 ANOTHER_NODE_DATA = NODE_DATA.copy()
 ANOTHER_NODE_DATA['id'] = 'peplin'
@@ -36,6 +36,15 @@ class RelationshipHandlerTest(BaseTrinityTest):
         eq_(response.code, 200)
         data = json.loads(response.body)
         eq_(data['data']['other'], self.data['data']['other'])
+
+    def test_same_start_end(self):
+        self.data['to'] = NODE_DATA['id']
+        self.http_client.fetch(HTTPRequest(
+                self.get_url('/node/%s/relationships' % NODE_DATA['id']),
+                'POST',
+                body=json.dumps(self.data)), self.stop)
+        response = self.wait()
+        eq_(response.code, 400)
 
     def test_append_relationship(self):
         self.data['append'] = True

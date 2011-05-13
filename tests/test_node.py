@@ -2,7 +2,7 @@ from nose.tools import ok_, eq_
 from tornado.httpclient import HTTPRequest
 import json
 
-from test.base import BaseTrinityTest
+from tests.base import BaseTrinityTest
 
 NODE_DATA = {'id': 'bueda', 'node': {'username': 'bueda', 'user_id': 12345}}
 

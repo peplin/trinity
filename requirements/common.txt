@@ -1,3 +1,4 @@
 tornado==1.1
 http://bueda.public.s3.amazonaws.com/JPype-0.5.4.1.zip
 http://bueda.public.s3.amazonaws.com/neo4j.tar.gz
+networkx==1.3
